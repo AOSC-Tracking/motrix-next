@@ -45,7 +45,7 @@ We owe a great deal to the original [Motrix](https://github.com/agalwood/Motrix)
 | **Styling** | SCSS + Element theme | **Vanilla CSS + custom properties** |
 | **Engine Mgmt** | Node.js `child_process` | **Tauri sidecar** |
 | **Build System** | electron-builder | **Vite + Cargo** |
-| **Bundle Size** | — | **~10 MB** |
+| **Bundle Size** | ~80 MB | **~10 MB** |
 | **Auto-Update** | electron-updater | **Tauri updater plugin** |
 
 Version numbering starts at `1.0.0` to reflect this clean break.
