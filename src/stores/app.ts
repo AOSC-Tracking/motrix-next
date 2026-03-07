@@ -171,10 +171,7 @@ export const useAppStore = defineStore('app', () => {
       (lower.startsWith('file://') && (lower.includes('.metalink') || lower.includes('.meta4')))
     ) {
       const filePath = url.startsWith('file://') ? decodeURIComponent(url.replace(/^file:\/\//, '')) : url
-      droppedTorrentPaths.value = [filePath]
-      addTaskType.value = ADD_TASK_TYPE.URI
-      addTaskUrl.value = filePath
-      addTaskVisible.value = true
+      showAddTaskDialog(ADD_TASK_TYPE.TORRENT, [filePath])
     } else if (lower.startsWith('magnet:')) {
       addTaskUrl.value = url
       showAddTaskDialog(ADD_TASK_TYPE.URI)

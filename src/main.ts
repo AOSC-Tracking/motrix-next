@@ -130,6 +130,9 @@ preferenceStore.loadPreference().then(async () => {
     logger.info('Engine', `RPC client connected via WebSocket on port ${port}`)
   } catch (e) {
     logger.warn('Engine', 'WebSocket failed, using HTTP fallback: ' + (e as Error).message)
+    // Engine is running (confirmed by waitForEngine), mark as ready for HTTP RPC polling
+    const { setEngineReady } = await import('@/api/aria2')
+    setEngineReady(true)
   }
 
   try {

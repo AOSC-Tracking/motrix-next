@@ -10,6 +10,7 @@ import { revealItemInDir } from '@tauri-apps/plugin-opener'
 import { isEngineReady } from '@/api/aria2'
 import { deleteTaskFiles } from '@/composables/useFileDelete'
 import type { Aria2Task } from '@shared/types'
+import { TASK_STATUS } from '@shared/constants'
 import { logger } from '@shared/logger'
 import { useDialog, NCheckbox } from 'naive-ui'
 import { useAppMessage } from '@/composables/useAppMessage'
@@ -71,7 +72,13 @@ function handlePauseTask(task: Aria2Task) {
   taskStore.pauseTask(task).catch(console.error)
 }
 function handleResumeTask(task: Aria2Task) {
-  taskStore.resumeTask(task).catch(console.error)
+  const { COMPLETE, ERROR, REMOVED } = TASK_STATUS
+  if (task.status === ERROR || task.status === COMPLETE || task.status === REMOVED) {
+    // Stopped tasks cannot be unpause'd — restart by re-adding the URI
+    taskStore.restartTask(task).catch(console.error)
+  } else {
+    taskStore.resumeTask(task).catch(console.error)
+  }
 }
 function handleDeleteTask(task: Aria2Task) {
   const noConfirm = preferenceStore.config?.noConfirmBeforeDeleteTask
@@ -138,7 +145,7 @@ async function handleShowInFolder(task: Aria2Task) {
   }
 }
 function handleStopSeeding(task: Aria2Task) {
-  taskStore.removeTask(task).catch(console.error)
+  taskStore.stopSeeding(task.gid).catch(console.error)
 }
 </script>
 

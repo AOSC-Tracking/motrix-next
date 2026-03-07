@@ -61,6 +61,7 @@ const torrentLoaded = ref(false)
 const torrentInfoHash = ref('')
 const torrentFiles = ref<{ idx: number; path: string; length: number }[]>([])
 const selectedFileIndices = ref<number[]>([])
+const metalinkBase64 = ref('')
 const submitting = ref(false)
 
 const form = ref({
@@ -150,8 +151,26 @@ watch(
   () => appStore.droppedTorrentPaths,
   async (paths) => {
     if (paths.length > 0 && props.show) {
+      const filePath = paths[0]
+      const lower = filePath.toLowerCase()
+      if (lower.endsWith('.metalink') || lower.endsWith('.meta4')) {
+        // Metalink file: read as base64 for addMetalink API
+        try {
+          const bytes = await readFile(filePath)
+          const uint8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes)
+          metalinkBase64.value = uint8ToBase64(uint8)
+          torrentName.value =
+            filePath.substring(Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\')) + 1) ||
+            'unknown.metalink'
+          torrentLoaded.value = true
+        } catch (e) {
+          logger.error('AddTask.loadMetalink', e)
+        }
+      } else {
+        metalinkBase64.value = ''
+        await loadTorrentFromPath(filePath)
+      }
       activeTab.value = ADD_TASK_TYPE.TORRENT
-      await loadTorrentFromPath(paths[0])
     }
   },
 )
@@ -192,6 +211,7 @@ function clearTorrent() {
   torrentInfoHash.value = ''
   torrentFiles.value = []
   selectedFileIndices.value = []
+  metalinkBase64.value = ''
 }
 
 function handleTabChange(name: string) {
@@ -296,6 +316,10 @@ async function handleSubmit() {
         options['select-file'] = selectedFileIndices.value.join(',')
       }
       await taskStore.addTorrent({ torrent: torrentBase64.value, options })
+    } else if (activeTab.value === ADD_TASK_TYPE.TORRENT && metalinkBase64.value) {
+      // Metalink file import
+      const options: Aria2EngineOptions = { dir: form.value.dir }
+      await taskStore.addMetalink({ metalink: metalinkBase64.value, options })
     } else {
       return
     }
@@ -417,9 +441,9 @@ onUnmounted(() => {
             <NInputGroup>
               <NInput v-model:value="form.dir" style="flex: 1" />
               <NButton @click="chooseDirectory">
-                <template #icon
-                  ><NIcon><FolderOpenOutline /></NIcon
-                ></template>
+                <template #icon>
+                  <NIcon><FolderOpenOutline /></NIcon>
+                </template>
               </NButton>
             </NInputGroup>
           </NFormItem>

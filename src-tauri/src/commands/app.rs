@@ -83,7 +83,7 @@ pub fn restart_engine_command(app: AppHandle) -> Result<(), AppError> {
     engine::restart_engine(&app, &config).map_err(|e| AppError::Engine(e))
 }
 
-/// Clears both user and system stores, resetting the app to defaults.
+/// Clears user, system, and preference stores, resetting the app to defaults.
 #[tauri::command]
 pub fn factory_reset(app: AppHandle) -> Result<(), AppError> {
     let user_store = app
@@ -94,6 +94,11 @@ pub fn factory_reset(app: AppHandle) -> Result<(), AppError> {
         .store("system.json")
         .map_err(|e| AppError::Store(e.to_string()))?;
     system_store.clear();
+    // Also clear config.json where frontend preferences are persisted
+    let config_store = app
+        .store("config.json")
+        .map_err(|e| AppError::Store(e.to_string()))?;
+    config_store.clear();
     Ok(())
 }
 

@@ -134,7 +134,7 @@ onMounted(async () => {
       if (torrentPaths.length > 0) {
         appStore.showAddTaskDialog(ADD_TASK_TYPE.TORRENT, torrentPaths)
       } else if (metalinkPaths.length > 0) {
-        appStore.handleDeepLinkUrls(metalinkPaths)
+        appStore.showAddTaskDialog(ADD_TASK_TYPE.TORRENT, metalinkPaths)
       }
     }
   })

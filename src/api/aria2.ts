@@ -14,6 +14,11 @@ export function isEngineReady(): boolean {
   return engineReady
 }
 
+/** Marks the engine as ready (used when WebSocket fails but HTTP RPC is available). */
+export function setEngineReady(ready: boolean): void {
+  engineReady = ready
+}
+
 /** Returns the initialized Aria2 client instance or throws if not yet initialized. */
 export function getClient(): Aria2 {
   if (!client) throw new Error('Aria2 client not initialized')

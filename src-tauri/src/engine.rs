@@ -319,7 +319,8 @@ fn build_start_args(
     args
 }
 
-/// Kill any process occupying the given port, so aria2c can bind to it.
+/// Kill only aria2c processes occupying the given port, so a new aria2c can bind to it.
+/// Non-aria2c processes on the same port are left untouched to prevent accidental kills.
 fn cleanup_port(port: &str) {
     #[cfg(unix)]
     {
@@ -331,13 +332,34 @@ fn cleanup_port(port: &str) {
             let pids = String::from_utf8_lossy(&out.stdout);
             let pids = pids.trim();
             if !pids.is_empty() {
-                eprintln!(
-                    "[aria2c] killing leftover process on port {}: PIDs {}",
-                    port, pids
-                );
-                let _ = std::process::Command::new("sh")
-                    .args(["-c", &format!("kill -9 {} 2>/dev/null", pids)])
-                    .status();
+                for pid in pids.lines() {
+                    let pid = pid.trim();
+                    if pid.is_empty() {
+                        continue;
+                    }
+                    // Verify the process is aria2c before killing
+                    let check = std::process::Command::new("sh")
+                        .args(["-c", &format!("ps -p {} -o comm= 2>/dev/null", pid)])
+                        .output();
+                    if let Ok(check_out) = check {
+                        let comm = String::from_utf8_lossy(&check_out.stdout);
+                        let comm = comm.trim();
+                        if comm.contains("aria2c") {
+                            eprintln!(
+                                "[aria2c] killing leftover aria2c process on port {}: PID {}",
+                                port, pid
+                            );
+                            let _ = std::process::Command::new("sh")
+                                .args(["-c", &format!("kill -9 {} 2>/dev/null", pid)])
+                                .status();
+                        } else {
+                            eprintln!(
+                                "[aria2c] port {} occupied by non-aria2c process '{}' (PID {}), skipping",
+                                port, comm, pid
+                            );
+                        }
+                    }
+                }
                 // Brief wait for OS to release the port
                 std::thread::sleep(std::time::Duration::from_millis(300));
             }
@@ -355,13 +377,33 @@ fn cleanup_port(port: &str) {
             for line in text.lines() {
                 if let Some(pid) = line.split_whitespace().last() {
                     if pid.parse::<u32>().is_ok() {
-                        eprintln!(
-                            "[aria2c] killing leftover process on port {}: PID {}",
-                            port, pid
-                        );
-                        let _ = std::process::Command::new("taskkill")
-                            .args(["/F", "/PID", pid])
-                            .status();
+                        // Verify the process is aria2c before killing
+                        let check = std::process::Command::new("cmd")
+                            .args([
+                                "/C",
+                                &format!("tasklist /FI \"PID eq {}\" /NH /FO CSV 2>NUL", pid),
+                            ])
+                            .output();
+                        let is_aria2c = check
+                            .map(|o| {
+                                let s = String::from_utf8_lossy(&o.stdout);
+                                s.to_lowercase().contains("aria2c")
+                            })
+                            .unwrap_or(false);
+                        if is_aria2c {
+                            eprintln!(
+                                "[aria2c] killing leftover aria2c process on port {}: PID {}",
+                                port, pid
+                            );
+                            let _ = std::process::Command::new("taskkill")
+                                .args(["/F", "/PID", pid])
+                                .status();
+                        } else {
+                            eprintln!(
+                                "[aria2c] port {} occupied by non-aria2c process (PID {}), skipping",
+                                port, pid
+                            );
+                        }
                     }
                 }
             }
