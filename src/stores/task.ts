@@ -293,17 +293,18 @@ export const useTaskStore = defineStore('task', () => {
       throw new Error('Cannot restart: no download URIs found for this task')
     }
 
-    // Remove the old record first
+    // Re-submit with original directory FIRST — only remove old record on success
+    const options: Record<string, string> = {}
+    if (dir) options.dir = dir
+    await api.addUri({ uris, outs: [], options })
+
+    // New task succeeded — safe to remove old stopped record
     try {
       await api.removeTaskRecord({ gid })
     } catch (e) {
       logger.debug('TaskStore.restartTask.removeRecord', e)
     }
 
-    // Re-submit with original directory
-    const options: Record<string, string> = {}
-    if (dir) options.dir = dir
-    await api.addUri({ uris, outs: [], options })
     await fetchList()
     api.saveSession()
   }

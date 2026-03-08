@@ -38,7 +38,6 @@ import { useAppMessage } from '@/composables/useAppMessage'
 import { SyncOutline, DiceOutline } from '@vicons/ionicons5'
 import { logger } from '@shared/logger'
 import PreferenceActionBar from './PreferenceActionBar.vue'
-import { logger } from '@shared/logger'
 
 const { t } = useI18n()
 const preferenceStore = usePreferenceStore()

@@ -157,9 +157,9 @@ defineExpose({ open })
   >
     <div class="update-dialog">
       <div class="update-dialog-header">
-        <div class="update-dialog-header-left">
-          <span class="update-dialog-title">{{ t('preferences.auto-update') }}</span>
-          <NTag :type="activeChannel === 'beta' ? 'warning' : 'success'" size="small" round :bordered="false">
+        <span class="update-dialog-title">{{ t('preferences.auto-update') }}</span>
+        <div class="update-channel-badge">
+          <NTag :type="activeChannel === 'beta' ? 'warning' : 'success'" size="medium" round :bordered="false">
             {{ t(`preferences.update-channel-${activeChannel}`) }}
           </NTag>
         </div>
@@ -239,9 +239,9 @@ defineExpose({ open })
             <div class="update-error-detail">
               <NText depth="3" class="update-error-msg">{{ errorMsg }}</NText>
             </div>
-            <NSpace justify="center" :size="8">
-              <NButton size="small" @click="() => open()">{{ t('app.retry') }}</NButton>
-              <NButton size="small" quaternary @click="close">{{ t('app.close') }}</NButton>
+            <NSpace justify="center" :size="12">
+              <NButton @click="() => open()">{{ t('app.retry') }}</NButton>
+              <NButton quaternary @click="close">{{ t('app.close') }}</NButton>
             </NSpace>
           </div>
         </Transition>
@@ -259,15 +259,11 @@ defineExpose({ open })
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
 }
 .update-dialog-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 18px 22px 0;
-}
-.update-dialog-header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 .update-dialog-title {
   font-size: 15px;
@@ -289,12 +285,19 @@ defineExpose({ open })
   opacity: 1;
 }
 .update-dialog-body {
-  padding: 22px 30px 28px;
-  min-height: 280px;
+  position: relative;
+  padding: 14px 30px 28px;
+  height: 310px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+.update-channel-badge {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .update-phase {
   display: flex;

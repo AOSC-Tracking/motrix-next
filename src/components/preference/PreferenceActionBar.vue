@@ -28,9 +28,7 @@ const { t } = useI18n()
   bottom: 0;
   z-index: 10;
   display: flex;
-  justify-content: flex-end;
-  background: var(--n-color, #1e1e2e);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  justify-content: flex-start;
   padding: 16px 24px 16px 40px;
 }
 .save-btn-dirty {

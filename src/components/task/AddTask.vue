@@ -166,8 +166,7 @@ async function loadDroppedFile(filePath: string) {
   if (lower.endsWith('.metalink') || lower.endsWith('.meta4')) {
     // Metalink file: read as base64 for addMetalink API
     try {
-      metalinkBase64.value = ''
-      torrentBase64.value = ''
+      clearTorrent() // fully reset all torrent state before loading metalink
       const bytes = await readFile(filePath)
       const uint8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes)
       metalinkBase64.value = uint8ToBase64(uint8)
