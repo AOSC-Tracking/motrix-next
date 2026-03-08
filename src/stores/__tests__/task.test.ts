@@ -35,6 +35,7 @@ function createMockApi() {
     fetchTaskItemWithPeers: vi.fn().mockResolvedValue({ ...makeMockTask('gid1'), peers: [] as Aria2Peer[] }),
     fetchActiveTaskList: vi.fn().mockResolvedValue([]),
     addUri: vi.fn().mockResolvedValue(['gid3']),
+    addUriAtomic: vi.fn().mockResolvedValue('gid3'),
     addTorrent: vi.fn().mockResolvedValue('gid4'),
     addMetalink: vi.fn().mockResolvedValue(['gid5']),
     getOption: vi.fn().mockResolvedValue({}),

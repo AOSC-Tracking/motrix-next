@@ -155,6 +155,17 @@ export async function addUri(params: {
   return Promise.all(tasks)
 }
 
+/**
+ * Adds a single download with all URIs as mirrors (alternative sources).
+ * Unlike addUri which creates one download per URI, this creates exactly one
+ * download — making it safe for atomic restart operations.
+ */
+export async function addUriAtomic(params: { uris: string[]; options: Record<string, string> }): Promise<string> {
+  const { uris, options } = params
+  const engineOptions = formatOptionsForEngine(options)
+  return getClient().call<string>('addUri', uris, engineOptions)
+}
+
 /** Adds a torrent download from a base64-encoded .torrent file. */
 export async function addTorrent(params: { torrent: string; options: Aria2EngineOptions }): Promise<string> {
   const engineOptions = formatOptionsForEngine(params.options)
@@ -266,6 +277,7 @@ const api = {
   fetchTaskItem,
   fetchTaskItemWithPeers,
   addUri,
+  addUriAtomic,
   addTorrent,
   addMetalink,
   removeTask,

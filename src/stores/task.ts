@@ -23,6 +23,7 @@ interface TaskApi {
   fetchTaskItemWithPeers: (params: { gid: string }) => Promise<Aria2Task & { peers: Aria2Peer[] }>
   fetchActiveTaskList: () => Promise<Aria2Task[]>
   addUri: (params: AddUriParams) => Promise<string[]>
+  addUriAtomic: (params: { uris: string[]; options: Record<string, string> }) => Promise<string>
   addTorrent: (params: AddTorrentParams) => Promise<string>
   addMetalink: (params: AddMetalinkParams) => Promise<string[]>
   getOption: (params: { gid: string }) => Promise<Record<string, string>>
@@ -293,10 +294,12 @@ export const useTaskStore = defineStore('task', () => {
       throw new Error('Cannot restart: no download URIs found for this task')
     }
 
-    // Re-submit with original directory FIRST — only remove old record on success
+    // Re-submit with original directory FIRST — only remove old record on success.
+    // Use addUriAtomic to submit all URIs as mirrors in a single aria2 call,
+    // avoiding partial-success scenarios where some URIs succeed and others fail.
     const options: Record<string, string> = {}
     if (dir) options.dir = dir
-    await api.addUri({ uris, outs: [], options })
+    await api.addUriAtomic({ uris, options })
 
     // New task succeeded — safe to remove old stopped record
     try {

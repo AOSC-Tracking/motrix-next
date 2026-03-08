@@ -579,4 +579,5 @@ onMounted(() => {
   bottom: 0;
   z-index: 10;
   padding: 16px 24px 16px 40px;
+}
 </style>
