@@ -204,6 +204,55 @@ The user's channel preference is stored as `updateChannel` in the preference sto
 
 > **Do NOT create tags from the command line.** Always use the GitHub Release UI — it triggers the `release.yml` workflow.
 
+### Release Notes Conventions
+
+**Title format:** `v{VERSION} — {Short Description}`
+
+Examples: `v2.0.0 — Stability & Quality Release`, `v2.0.1 — Bug Fixes`, `v2.1.0 — Proxy Support`
+
+**Body template:**
+
+```markdown
+> [!CAUTION]
+> **Breaking change notice** (only if applicable)
+
+---
+
+## What's Changed
+
+One-paragraph summary of the release scope and significance.
+
+### ✨ New Features
+
+- **Feature name** — short description
+- **Feature name** — short description
+
+### 🛠 Improvements
+
+- Description of improvement
+- Description of improvement
+
+### 🐛 Bug Fixes
+
+- Fixed specific issue
+
+### 📦 Downloads
+
+| Platform | File |
+|----------|------|
+| macOS (Apple Silicon) | `.dmg` |
+| Windows (x64) | `-setup.exe` |
+| Linux (x64) | `.AppImage` / `.deb` |
+| Linux (ARM64) | `.AppImage` / `.deb` |
+```
+
+**Guidelines:**
+
+- Use `> [!CAUTION]` GitHub Alert only for breaking changes or manual action required
+- Omit empty sections — e.g. no Bug Fixes section if there are none
+- Patch releases: keep concise, only list what changed
+- Major releases: include a summary paragraph explaining the scope
+
 ---
 
 ## F. CI/CD Structure
