@@ -4,17 +4,37 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { TASK_STATUS } from '@shared/constants'
 import {
-  checkTaskIsBT, checkTaskIsSeeder, getTaskName,
-  bytesToSize, calcProgress, calcRatio, getFileName, getFileExtension,
-  localeDateTimeFormat, bitfieldToPercent, peerIdParser, timeRemaining, timeFormat
+  checkTaskIsBT,
+  checkTaskIsSeeder,
+  getTaskName,
+  bytesToSize,
+  calcProgress,
+  calcRatio,
+  getFileName,
+  getFileExtension,
+  localeDateTimeFormat,
+  bitfieldToPercent,
+  peerIdParser,
+  timeRemaining,
+  timeFormat,
 } from '@shared/utils'
 import {
-  NDrawer, NDrawerContent, NDescriptions, NDescriptionsItem,
-  NDataTable, NIcon, NProgress, NTag, NInput
+  NDrawer,
+  NDrawerContent,
+  NDescriptions,
+  NDescriptionsItem,
+  NDataTable,
+  NIcon,
+  NProgress,
+  NTag,
+  NInput,
 } from 'naive-ui'
 import {
-  InformationCircleOutline, PulseOutline, DocumentOutline,
-  PeopleOutline, ServerOutline
+  InformationCircleOutline,
+  PulseOutline,
+  DocumentOutline,
+  PeopleOutline,
+  ServerOutline,
 } from '@vicons/ionicons5'
 import TaskGraphic from './TaskGraphic.vue'
 import type { Aria2Task, Aria2File, Aria2Peer } from '@shared/types'
@@ -31,7 +51,11 @@ const activeTab = ref('general')
 const slideDirection = ref<'left' | 'right'>('left')
 const prevTabIndex = ref(0)
 
-interface TabDef { key: string; icon: typeof InformationCircleOutline; btOnly?: boolean }
+interface TabDef {
+  key: string
+  icon: typeof InformationCircleOutline
+  btOnly?: boolean
+}
 const allTabs: TabDef[] = [
   { key: 'general', icon: InformationCircleOutline },
   { key: 'activity', icon: PulseOutline },
@@ -40,48 +64,45 @@ const allTabs: TabDef[] = [
   { key: 'trackers', icon: ServerOutline, btOnly: true },
 ]
 
-const visibleTabs = computed(() =>
-  allTabs.filter(tab => !tab.btOnly || isBT.value)
-)
+const visibleTabs = computed(() => allTabs.filter((tab) => !tab.btOnly || isBT.value))
 
 function switchTab(key: string) {
-  const oldIdx = visibleTabs.value.findIndex(t => t.key === activeTab.value)
-  const newIdx = visibleTabs.value.findIndex(t => t.key === key)
+  const oldIdx = visibleTabs.value.findIndex((t) => t.key === activeTab.value)
+  const newIdx = visibleTabs.value.findIndex((t) => t.key === key)
   slideDirection.value = newIdx > oldIdx ? 'left' : 'right'
   prevTabIndex.value = newIdx
   activeTab.value = key
 }
 
-const isBT = computed(() => props.task ? checkTaskIsBT(props.task) : false)
+const isBT = computed(() => (props.task ? checkTaskIsBT(props.task) : false))
 
 const prevTaskGid = ref('')
-watch(() => props.task?.gid, (gid) => {
-  if (gid && gid !== prevTaskGid.value) {
-    activeTab.value = 'general'
-    prevTaskGid.value = gid
-  }
-})
-const isSeeder = computed(() => props.task ? checkTaskIsSeeder(props.task) : false)
-const taskStatusKey = computed(() => isSeeder.value ? TASK_STATUS.SEEDING : (props.task?.status))
+watch(
+  () => props.task?.gid,
+  (gid) => {
+    if (gid && gid !== prevTaskGid.value) {
+      activeTab.value = 'general'
+      prevTaskGid.value = gid
+    }
+  },
+)
+const isSeeder = computed(() => (props.task ? checkTaskIsSeeder(props.task) : false))
+const taskStatusKey = computed(() => (isSeeder.value ? TASK_STATUS.SEEDING : props.task?.status))
 const taskStatus = computed(() => {
   const key = taskStatusKey.value
   const translated = t(`task.status-${key}`)
   return translated !== `task.status-${key}` ? translated : key
 })
 const isActive = computed(() => props.task?.status === TASK_STATUS.ACTIVE)
-const taskFullName = computed(() =>
-  props.task ? getTaskName(props.task, { defaultName: 'Unknown', maxLen: -1 }) : ''
-)
-const percent = computed(() =>
-  props.task ? calcProgress(props.task.totalLength, props.task.completedLength) : 0
-)
+const taskFullName = computed(() => (props.task ? getTaskName(props.task, { defaultName: 'Unknown', maxLen: -1 }) : ''))
+const percent = computed(() => (props.task ? calcProgress(props.task.totalLength, props.task.completedLength) : 0))
 
 const remaining = computed(() => {
   if (!isActive.value || !props.task) return 0
   return timeRemaining(
     Number(props.task.totalLength),
     Number(props.task.completedLength),
-    Number(props.task.downloadSpeed)
+    Number(props.task.downloadSpeed),
   )
 })
 
@@ -93,8 +114,8 @@ const remainingText = computed(() => {
       gt1d: t('app.gt1d') || '>1d',
       hour: t('app.hour') || 'h',
       minute: t('app.minute') || 'm',
-      second: t('app.second') || 's'
-    }
+      second: t('app.second') || 's',
+    },
   })
 })
 
@@ -110,10 +131,14 @@ const btInfo = computed(() => {
 
 const statusTagType = computed(() => {
   switch (taskStatusKey.value) {
-    case 'active': return 'warning'
-    case 'complete': return 'success'
-    case 'error': return 'error'
-    default: return 'default'
+    case 'active':
+      return 'warning'
+    case 'complete':
+      return 'success'
+    case 'error':
+      return 'error'
+    default:
+      return 'default'
   }
 })
 
@@ -129,7 +154,7 @@ const fileList = computed(() =>
       percent: calcProgress(item.length, item.completedLength, 1),
       selected: item.selected === 'true',
     }
-  })
+  }),
 )
 
 const fileColumns = computed(() => [
@@ -137,8 +162,20 @@ const fileColumns = computed(() => [
   { title: t('task.file-name') || 'Name', key: 'name', ellipsis: { tooltip: true } },
   { title: t('task.file-extension') || 'Ext', key: 'extension', width: 70 },
   { title: '%', key: 'percent', width: 60, align: 'right' as const },
-  { title: '✓', key: 'completedLength', width: 90, align: 'right' as const, render: (row: { completedLength: number }) => bytesToSize(String(row.completedLength)) },
-  { title: t('task.file-size') || 'Size', key: 'length', width: 90, align: 'right' as const, render: (row: { length: number }) => bytesToSize(String(row.length)) },
+  {
+    title: '✓',
+    key: 'completedLength',
+    width: 90,
+    align: 'right' as const,
+    render: (row: { completedLength: number }) => bytesToSize(String(row.completedLength)),
+  },
+  {
+    title: t('task.file-size') || 'Size',
+    key: 'length',
+    width: 90,
+    align: 'right' as const,
+    render: (row: { length: number }) => bytesToSize(String(row.length)),
+  },
 ])
 
 const peers = computed(() => {
@@ -180,7 +217,11 @@ function handleClose() {
     placement="right"
     :trap-focus="false"
     :block-scroll="false"
-    @update:show="(v: boolean) => { if (!v) handleClose() }"
+    @update:show="
+      (v: boolean) => {
+        if (!v) handleClose()
+      }
+    "
   >
     <NDrawerContent :title="t('task.task-detail-title') || 'Task Details'" closable @close="handleClose">
       <div class="detail-tabs">
@@ -198,7 +239,13 @@ function handleClose() {
         <Transition :name="`tab-slide-${slideDirection}`" mode="out-in">
           <div v-if="activeTab === 'general'" key="general" class="tab-content">
             <template v-if="task">
-              <NDescriptions :column="1" label-placement="left" bordered size="small" :label-style="{ width: '1px', whiteSpace: 'nowrap' }">
+              <NDescriptions
+                :column="1"
+                label-placement="left"
+                bordered
+                size="small"
+                :label-style="{ width: '1px', whiteSpace: 'nowrap' }"
+              >
                 <NDescriptionsItem :label="t('task.task-gid') || 'GID'">{{ task.gid }}</NDescriptionsItem>
                 <NDescriptionsItem :label="t('task.task-name') || 'Name'">{{ taskFullName }}</NDescriptionsItem>
                 <NDescriptionsItem :label="t('task.task-dir') || 'Directory'">{{ task.dir }}</NDescriptionsItem>
@@ -214,20 +261,27 @@ function handleClose() {
               </NDescriptions>
               <template v-if="isBT && btInfo">
                 <div class="section-divider">BitTorrent</div>
-                <NDescriptions :column="1" label-placement="left" bordered size="small" :label-style="{ width: '1px', whiteSpace: 'nowrap' }">
+                <NDescriptions
+                  :column="1"
+                  label-placement="left"
+                  bordered
+                  size="small"
+                  :label-style="{ width: '1px', whiteSpace: 'nowrap' }"
+                >
                   <NDescriptionsItem :label="t('task.task-info-hash') || 'Hash'">{{ task.infoHash }}</NDescriptionsItem>
-                  <NDescriptionsItem :label="t('task.task-piece-length') || 'Piece Size'">{{ bytesToSize(String(task.pieceLength)) }}</NDescriptionsItem>
-                  <NDescriptionsItem :label="t('task.task-num-pieces') || 'Pieces'">{{ task.numPieces }}</NDescriptionsItem>
+                  <NDescriptionsItem :label="t('task.task-piece-length') || 'Piece Size'">
+                    {{ bytesToSize(String(task.pieceLength)) }}
+                  </NDescriptionsItem>
+                  <NDescriptionsItem :label="t('task.task-num-pieces') || 'Pieces'">
+                    {{ task.numPieces }}
+                  </NDescriptionsItem>
                   <NDescriptionsItem
                     v-if="btInfo?.creationDate"
                     :label="t('task.task-bittorrent-creation-date') || 'Created'"
                   >
                     {{ localeDateTimeFormat(Number(btInfo.creationDate), 'en') }}
                   </NDescriptionsItem>
-                  <NDescriptionsItem
-                    v-if="btInfo?.comment"
-                    :label="t('task.task-bittorrent-comment') || 'Comment'"
-                  >
+                  <NDescriptionsItem v-if="btInfo?.comment" :label="t('task.task-bittorrent-comment') || 'Comment'">
                     {{ btInfo.comment }}
                   </NDescriptionsItem>
                 </NDescriptions>
@@ -250,12 +304,22 @@ function handleClose() {
                   <span v-if="Number(task.totalLength) > 0"> / {{ bytesToSize(task.totalLength, 2) }}</span>
                   <span v-if="remainingText" class="remaining-text">{{ remainingText }}</span>
                 </NDescriptionsItem>
-                <NDescriptionsItem :label="t('task.task-download-speed') || 'DL Speed'">{{ bytesToSize(task.downloadSpeed) }}/s</NDescriptionsItem>
-                <NDescriptionsItem v-if="isBT" :label="t('task.task-upload-speed') || 'UL Speed'">{{ bytesToSize(task.uploadSpeed) }}/s</NDescriptionsItem>
-                <NDescriptionsItem v-if="isBT" :label="t('task.task-upload-length') || 'Uploaded'">{{ bytesToSize(task.uploadLength) }}</NDescriptionsItem>
+                <NDescriptionsItem :label="t('task.task-download-speed') || 'DL Speed'">
+                  {{ bytesToSize(task.downloadSpeed) }}/s
+                </NDescriptionsItem>
+                <NDescriptionsItem v-if="isBT" :label="t('task.task-upload-speed') || 'UL Speed'">
+                  {{ bytesToSize(task.uploadSpeed) }}/s
+                </NDescriptionsItem>
+                <NDescriptionsItem v-if="isBT" :label="t('task.task-upload-length') || 'Uploaded'">
+                  {{ bytesToSize(task.uploadLength) }}
+                </NDescriptionsItem>
                 <NDescriptionsItem v-if="isBT" :label="t('task.task-ratio') || 'Ratio'">{{ ratio }}</NDescriptionsItem>
-                <NDescriptionsItem v-if="isBT" :label="t('task.task-num-seeders') || 'Seeders'">{{ task.numSeeders }}</NDescriptionsItem>
-                <NDescriptionsItem :label="t('task.task-connections') || 'Connections'">{{ task.connections }}</NDescriptionsItem>
+                <NDescriptionsItem v-if="isBT" :label="t('task.task-num-seeders') || 'Seeders'">
+                  {{ task.numSeeders }}
+                </NDescriptionsItem>
+                <NDescriptionsItem :label="t('task.task-connections') || 'Connections'">
+                  {{ task.connections }}
+                </NDescriptionsItem>
               </NDescriptions>
             </template>
           </div>
@@ -324,12 +388,12 @@ function handleClose() {
 }
 
 .detail-tab:hover {
-  color: var(--primary-color, #E0A422);
+  color: var(--primary-color, #e0a422);
 }
 
 .detail-tab.active {
-  color: var(--primary-color, #E0A422);
-  border-bottom-color: var(--primary-color, #E0A422);
+  color: var(--primary-color, #e0a422);
+  border-bottom-color: var(--primary-color, #e0a422);
 }
 
 .tab-content-wrapper {
@@ -345,7 +409,7 @@ function handleClose() {
   margin: 20px 0 12px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--primary-color, #E0A422);
+  color: var(--primary-color, #e0a422);
   letter-spacing: 0.5px;
 }
 

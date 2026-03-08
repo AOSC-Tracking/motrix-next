@@ -7,5 +7,5 @@ import type { I18n } from 'vue-i18n'
  * so this centralized function houses the single necessary cast.
  */
 export function setI18nLocale(i18n: I18n, locale: string): void {
-    ; (i18n.global.locale as unknown as { value: string }).value = locale
+  ;(i18n.global.locale as unknown as { value: string }).value = locale
 }

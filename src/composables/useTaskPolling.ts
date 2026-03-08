@@ -12,39 +12,39 @@ import { logger } from '@shared/logger'
  * Re-entry safe: concurrent poll ticks are prevented.
  */
 export function useTaskPolling() {
-    const taskStore = useTaskStore()
-    const appStore = useAppStore()
-    const isPolling = ref(false)
+  const taskStore = useTaskStore()
+  const appStore = useAppStore()
+  const isPolling = ref(false)
 
-    let timer: ReturnType<typeof setTimeout> | null = null
+  let timer: ReturnType<typeof setTimeout> | null = null
 
-    function start() {
-        stop()
-        isPolling.value = true
+  function start() {
+    stop()
+    isPolling.value = true
 
-        function tick() {
-            if (!isPolling.value) return
-            if (isEngineReady()) {
-                taskStore.fetchList().catch((e: unknown) => {
-                    logger.warn('useTaskPolling', (e as Error).message)
-                })
-            }
-            timer = setTimeout(tick, appStore.interval)
-        }
-
-        timer = setTimeout(tick, appStore.interval)
+    function tick() {
+      if (!isPolling.value) return
+      if (isEngineReady()) {
+        taskStore.fetchList().catch((e: unknown) => {
+          logger.warn('useTaskPolling', (e as Error).message)
+        })
+      }
+      timer = setTimeout(tick, appStore.interval)
     }
 
-    function stop() {
-        isPolling.value = false
-        if (timer) {
-            clearTimeout(timer)
-            timer = null
-        }
+    timer = setTimeout(tick, appStore.interval)
+  }
+
+  function stop() {
+    isPolling.value = false
+    if (timer) {
+      clearTimeout(timer)
+      timer = null
     }
+  }
 
-    onMounted(start)
-    onBeforeUnmount(stop)
+  onMounted(start)
+  onBeforeUnmount(stop)
 
-    return { isPolling, start, stop }
+  return { isPolling, start, stop }
 }

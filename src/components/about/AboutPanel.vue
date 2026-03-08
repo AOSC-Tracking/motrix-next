@@ -14,7 +14,9 @@ const { t } = useI18n()
 const version = ref('')
 const year = new Date().getFullYear()
 
-onMounted(async () => { version.value = await getVersion() })
+onMounted(async () => {
+  version.value = await getVersion()
+})
 
 const techStack = [
   { name: 'Tauri v2', color: '#FFC131' },
@@ -31,7 +33,15 @@ function openUrl(url: string) {
 </script>
 
 <template>
-  <NModal :show="show" transform-origin="center" @update:show="(v: boolean) => { if (!v) emit('close') }">
+  <NModal
+    :show="show"
+    transform-origin="center"
+    @update:show="
+      (v: boolean) => {
+        if (!v) emit('close')
+      }
+    "
+  >
     <NCard
       closable
       :style="{ maxWidth: '480px', minWidth: '340px', width: '50vw' }"
@@ -41,7 +51,7 @@ function openUrl(url: string) {
       <div class="about-container">
         <div class="about-header">
           <div class="about-logo">
-            <img src="@/assets/logo.png" alt="Motrix Next" width="100" height="100" style="border-radius: 20px;" />
+            <img src="@/assets/logo.png" alt="Motrix Next" width="100" height="100" style="border-radius: 20px" />
           </div>
           <div class="about-title">Motrix <span class="about-title-accent">Next</span></div>
           <div class="about-version">v{{ version }}</div>
@@ -52,7 +62,7 @@ function openUrl(url: string) {
           with Tauri, Vue 3, and TypeScript.
         </div>
 
-        <NDivider style="margin: 16px 0 12px;" />
+        <NDivider style="margin: 16px 0 12px" />
 
         <div class="about-section-title">Tech Stack</div>
         <div class="about-tags">
@@ -68,30 +78,44 @@ function openUrl(url: string) {
           </NTag>
         </div>
 
-        <NDivider style="margin: 12px 0;" />
+        <NDivider style="margin: 12px 0" />
 
         <div class="about-links">
           <NButton text @click="openUrl('https://github.com/AnInsomniacy/motrix-next')">
-            <template #icon><NIcon :size="16"><LogoGithub /></NIcon></template>
+            <template #icon>
+              <NIcon :size="16"><LogoGithub /></NIcon>
+            </template>
             GitHub
           </NButton>
           <NButton text @click="openUrl('https://github.com/AnInsomniacy/motrix-next/releases')">
-            <template #icon><NIcon :size="16"><RocketOutline /></NIcon></template>
+            <template #icon>
+              <NIcon :size="16"><RocketOutline /></NIcon>
+            </template>
             {{ t('about.release') }}
           </NButton>
           <NButton text @click="openUrl('https://github.com/AnInsomniacy/motrix-next/blob/main/LICENSE')">
-            <template #icon><NIcon :size="16"><DocumentTextOutline /></NIcon></template>
+            <template #icon>
+              <NIcon :size="16"><DocumentTextOutline /></NIcon>
+            </template>
             {{ t('about.license') }}
           </NButton>
           <NButton text @click="openUrl('https://github.com/AnInsomniacy/motrix-next/issues')">
-            <template #icon><NIcon :size="16"><HeartOutline /></NIcon></template>
+            <template #icon>
+              <NIcon :size="16"><HeartOutline /></NIcon>
+            </template>
             {{ t('about.support') }}
           </NButton>
         </div>
 
         <div class="about-footer">
-          <span>Developed by <a class="about-link" @click="openUrl('https://github.com/AnInsomniacy')">AnInsomniacy</a></span>
-          <span>Inspired by <a class="about-link" @click="openUrl('https://github.com/agalwood/Motrix')">Motrix</a> — thanks to the original creators</span>
+          <span
+            >Developed by
+            <a class="about-link" @click="openUrl('https://github.com/AnInsomniacy')">AnInsomniacy</a></span
+          >
+          <span
+            >Inspired by <a class="about-link" @click="openUrl('https://github.com/agalwood/Motrix')">Motrix</a> —
+            thanks to the original creators</span
+          >
           <span>&copy; {{ year }} AnInsomniacy</span>
         </div>
       </div>
@@ -120,7 +144,7 @@ function openUrl(url: string) {
   margin-top: 8px;
 }
 .about-title-accent {
-  color: #E0A422;
+  color: #e0a422;
 }
 .about-version {
   font-size: 14px;
@@ -165,7 +189,7 @@ function openUrl(url: string) {
   opacity: 0.35;
 }
 .about-link {
-  color: #E0A422;
+  color: #e0a422;
   cursor: pointer;
   text-decoration: none;
 }

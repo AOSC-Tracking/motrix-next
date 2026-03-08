@@ -16,7 +16,9 @@ const items: { key: string; icon: Component; route: string }[] = [
 ]
 
 function nav(path: string) {
-  router.push({ path }).catch(() => { /* duplicate navigation */ })
+  router.push({ path }).catch(() => {
+    /* duplicate navigation */
+  })
 }
 
 function isActive(key: string) {
@@ -29,12 +31,7 @@ function isActive(key: string) {
     <nav class="subnav-inner" data-tauri-drag-region>
       <h3>{{ t('subnav.task-list') || 'Tasks' }}</h3>
       <ul>
-        <li
-          v-for="item in items"
-          :key="item.key"
-          :class="{ active: isActive(item.key) }"
-          @click="nav(item.route)"
-        >
+        <li v-for="item in items" :key="item.key" :class="{ active: isActive(item.key) }" @click="nav(item.route)">
           <NIcon :size="16" class="subnav-icon">
             <component :is="item.icon" />
           </NIcon>

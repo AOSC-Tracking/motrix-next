@@ -3,11 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { isEmpty } from 'lodash-es'
 import { load } from '@tauri-apps/plugin-store'
-import {
-    getLangDirection,
-    pushItemToFixedLengthArray,
-    removeArrayItem,
-} from '@shared/utils'
+import { getLangDirection, pushItemToFixedLengthArray, removeArrayItem } from '@shared/utils'
 import { fetchBtTrackerFromSource } from '@shared/utils/tracker'
 import { MAX_NUM_OF_DIRECTORIES } from '@shared/constants'
 import { logger } from '@shared/logger'
@@ -16,139 +12,139 @@ import type { AppConfig, ProxyConfig } from '@shared/types'
 const STORE_KEY = 'preferences'
 
 export const usePreferenceStore = defineStore('preference', () => {
-    const engineMode = ref('MAX')
-    const pendingChanges = ref(false)
-    const config = ref<AppConfig>({ theme: 'dark', locale: 'en-US' } as AppConfig)
+  const engineMode = ref('MAX')
+  const pendingChanges = ref(false)
+  const config = ref<AppConfig>({ theme: 'dark', locale: 'en-US' } as AppConfig)
 
-    const theme = computed(() => config.value.theme)
-    const locale = computed(() => config.value.locale)
-    const direction = computed(() => getLangDirection(config.value.locale || 'en-US'))
+  const theme = computed(() => config.value.theme)
+  const locale = computed(() => config.value.locale)
+  const direction = computed(() => getLangDirection(config.value.locale || 'en-US'))
 
-    async function getStore() {
-        return await load('config.json')
+  async function getStore() {
+    return await load('config.json')
+  }
+
+  async function loadPreference() {
+    try {
+      const store = await getStore()
+      const saved = await store.get<Partial<AppConfig>>(STORE_KEY)
+      if (saved && !isEmpty(saved)) {
+        config.value = { ...config.value, ...saved }
+      }
+    } catch (e) {
+      logger.error('PreferenceStore.loadPreference', e)
     }
+  }
 
-    async function loadPreference() {
-        try {
-            const store = await getStore()
-            const saved = await store.get<Partial<AppConfig>>(STORE_KEY)
-            if (saved && !isEmpty(saved)) {
-                config.value = { ...config.value, ...saved }
-            }
-        } catch (e) {
-            logger.error('PreferenceStore.loadPreference', e)
-        }
+  async function savePreference() {
+    try {
+      const store = await getStore()
+      await store.set(STORE_KEY, config.value)
+      await store.save()
+    } catch (e) {
+      logger.error('PreferenceStore.savePreference', e)
     }
+  }
 
-    async function savePreference() {
-        try {
-            const store = await getStore()
-            await store.set(STORE_KEY, config.value)
-            await store.save()
-        } catch (e) {
-            logger.error('PreferenceStore.savePreference', e)
-        }
-    }
+  async function updateAndSave(cfg: Partial<AppConfig>) {
+    config.value = { ...config.value, ...cfg }
+    await savePreference()
+  }
 
-    async function updateAndSave(cfg: Partial<AppConfig>) {
-        config.value = { ...config.value, ...cfg }
-        await savePreference()
-    }
+  function updatePreference(cfg: Partial<AppConfig>) {
+    config.value = { ...config.value, ...cfg }
+  }
 
-    function updatePreference(cfg: Partial<AppConfig>) {
-        config.value = { ...config.value, ...cfg }
-    }
+  async function fetchPreference(api: { fetchPreference: () => Promise<Partial<AppConfig>> }) {
+    const cfg = await api.fetchPreference()
+    updatePreference(cfg)
+    return cfg
+  }
 
-    async function fetchPreference(api: { fetchPreference: () => Promise<Partial<AppConfig>> }) {
-        const cfg = await api.fetchPreference()
-        updatePreference(cfg)
-        return cfg
-    }
+  async function save(
+    cfg: Partial<AppConfig>,
+    api: { savePreference: (c: Partial<AppConfig>) => Promise<void> },
+    saveSession: () => void,
+  ) {
+    saveSession()
+    if (isEmpty(cfg)) return
+    updatePreference(cfg)
+    return api.savePreference(cfg)
+  }
 
-    async function save(
-        cfg: Partial<AppConfig>,
-        api: { savePreference: (c: Partial<AppConfig>) => Promise<void> },
-        saveSession: () => void
-    ) {
-        saveSession()
-        if (isEmpty(cfg)) return
-        updatePreference(cfg)
-        return api.savePreference(cfg)
-    }
+  function recordHistoryDirectory(directory: string) {
+    const historyDirectories = config.value.historyDirectories || []
+    const favoriteDirectories = config.value.favoriteDirectories || []
+    const all = new Set([...historyDirectories, ...favoriteDirectories])
+    if (all.has(directory)) return
+    addHistoryDirectory(directory)
+  }
 
-    function recordHistoryDirectory(directory: string) {
-        const historyDirectories = config.value.historyDirectories || []
-        const favoriteDirectories = config.value.favoriteDirectories || []
-        const all = new Set([...historyDirectories, ...favoriteDirectories])
-        if (all.has(directory)) return
-        addHistoryDirectory(directory)
-    }
+  function addHistoryDirectory(directory: string) {
+    const historyDirectories = config.value.historyDirectories || []
+    const history = pushItemToFixedLengthArray(historyDirectories, MAX_NUM_OF_DIRECTORIES, directory)
+    config.value = { ...config.value, historyDirectories: history }
+  }
 
-    function addHistoryDirectory(directory: string) {
-        const historyDirectories = config.value.historyDirectories || []
-        const history = pushItemToFixedLengthArray(historyDirectories, MAX_NUM_OF_DIRECTORIES, directory)
-        config.value = { ...config.value, historyDirectories: history }
-    }
+  function favoriteDirectory(directory: string) {
+    const historyDirectories = config.value.historyDirectories || []
+    const favoriteDirectories = config.value.favoriteDirectories || []
+    if (favoriteDirectories.includes(directory) || favoriteDirectories.length >= MAX_NUM_OF_DIRECTORIES) return
+    const favorite = pushItemToFixedLengthArray(favoriteDirectories, MAX_NUM_OF_DIRECTORIES, directory)
+    const history = removeArrayItem(historyDirectories, directory)
+    config.value = { ...config.value, historyDirectories: history, favoriteDirectories: favorite }
+  }
 
-    function favoriteDirectory(directory: string) {
-        const historyDirectories = config.value.historyDirectories || []
-        const favoriteDirectories = config.value.favoriteDirectories || []
-        if (favoriteDirectories.includes(directory) || favoriteDirectories.length >= MAX_NUM_OF_DIRECTORIES) return
-        const favorite = pushItemToFixedLengthArray(favoriteDirectories, MAX_NUM_OF_DIRECTORIES, directory)
-        const history = removeArrayItem(historyDirectories, directory)
-        config.value = { ...config.value, historyDirectories: history, favoriteDirectories: favorite }
-    }
+  function cancelFavoriteDirectory(directory: string) {
+    const historyDirectories = config.value.historyDirectories || []
+    const favoriteDirectories = config.value.favoriteDirectories || []
+    if (historyDirectories.includes(directory)) return
+    const favorite = removeArrayItem(favoriteDirectories, directory)
+    const history = pushItemToFixedLengthArray(historyDirectories, MAX_NUM_OF_DIRECTORIES, directory)
+    config.value = { ...config.value, historyDirectories: history, favoriteDirectories: favorite }
+  }
 
-    function cancelFavoriteDirectory(directory: string) {
-        const historyDirectories = config.value.historyDirectories || []
-        const favoriteDirectories = config.value.favoriteDirectories || []
-        if (historyDirectories.includes(directory)) return
-        const favorite = removeArrayItem(favoriteDirectories, directory)
-        const history = pushItemToFixedLengthArray(historyDirectories, MAX_NUM_OF_DIRECTORIES, directory)
-        config.value = { ...config.value, historyDirectories: history, favoriteDirectories: favorite }
-    }
+  function removeDirectory(directory: string) {
+    const historyDirectories = config.value.historyDirectories || []
+    const favoriteDirectories = config.value.favoriteDirectories || []
+    const favorite = removeArrayItem(favoriteDirectories, directory)
+    const history = removeArrayItem(historyDirectories, directory)
+    config.value = { ...config.value, historyDirectories: history, favoriteDirectories: favorite }
+  }
 
-    function removeDirectory(directory: string) {
-        const historyDirectories = config.value.historyDirectories || []
-        const favoriteDirectories = config.value.favoriteDirectories || []
-        const favorite = removeArrayItem(favoriteDirectories, directory)
-        const history = removeArrayItem(historyDirectories, directory)
-        config.value = { ...config.value, historyDirectories: history, favoriteDirectories: favorite }
-    }
+  function updateAppTheme(t: AppConfig['theme']) {
+    updatePreference({ theme: t })
+  }
 
-    function updateAppTheme(t: AppConfig['theme']) {
-        updatePreference({ theme: t })
-    }
+  function updateAppLocale(l: string) {
+    updatePreference({ locale: l })
+  }
 
-    function updateAppLocale(l: string) {
-        updatePreference({ locale: l })
-    }
+  async function fetchBtTracker(trackerSource: string[] = []) {
+    const proxy = config.value.proxy || ({ enable: false } as ProxyConfig)
+    return fetchBtTrackerFromSource(trackerSource, proxy)
+  }
 
-    async function fetchBtTracker(trackerSource: string[] = []) {
-        const proxy = config.value.proxy || { enable: false } as ProxyConfig
-        return fetchBtTrackerFromSource(trackerSource, proxy)
-    }
-
-    return {
-        engineMode,
-        pendingChanges,
-        config,
-        theme,
-        locale,
-        direction,
-        updatePreference,
-        updateAndSave,
-        loadPreference,
-        savePreference,
-        fetchPreference,
-        save,
-        recordHistoryDirectory,
-        addHistoryDirectory,
-        favoriteDirectory,
-        cancelFavoriteDirectory,
-        removeDirectory,
-        updateAppTheme,
-        updateAppLocale,
-        fetchBtTracker,
-    }
+  return {
+    engineMode,
+    pendingChanges,
+    config,
+    theme,
+    locale,
+    direction,
+    updatePreference,
+    updateAndSave,
+    loadPreference,
+    savePreference,
+    fetchPreference,
+    save,
+    recordHistoryDirectory,
+    addHistoryDirectory,
+    favoriteDirectory,
+    cancelFavoriteDirectory,
+    removeDirectory,
+    updateAppTheme,
+    updateAppLocale,
+    fetchBtTracker,
+  }
 })

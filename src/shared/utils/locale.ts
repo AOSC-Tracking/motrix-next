@@ -2,13 +2,13 @@
 import { SUPPORT_RTL_LOCALES } from '@shared/constants'
 
 export const isRTL = (locale = 'en-US'): boolean => {
-    return SUPPORT_RTL_LOCALES.includes(locale)
+  return SUPPORT_RTL_LOCALES.includes(locale)
 }
 
 export const getLangDirection = (locale = 'en-US'): string => {
-    return isRTL(locale) ? 'rtl' : 'ltr'
+  return isRTL(locale) ? 'rtl' : 'ltr'
 }
 
 export const calcFormLabelWidth = (locale: string): string => {
-    return locale.startsWith('de') ? '28%' : '25%'
+  return locale.startsWith('de') ? '28%' : '25%'
 }

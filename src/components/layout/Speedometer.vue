@@ -47,10 +47,11 @@ const uploadSpeed = computed(() => bytesToSize(String(stat.value.uploadSpeed)))
   height: 40px;
   padding: 4px 12px 4px 40px;
   border-radius: 100px;
-  transition: width .35s cubic-bezier(0.2, 0, 0, 1),
-              padding .35s cubic-bezier(0.2, 0, 0, 1),
-              border-color .2s cubic-bezier(0.2, 0, 0, 1),
-              background .2s cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    width 0.35s cubic-bezier(0.2, 0, 0, 1),
+    padding 0.35s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+    background 0.2s cubic-bezier(0.2, 0, 0, 1);
   border: 1px solid var(--speedometer-border);
   background: var(--speedometer-bg);
 }
@@ -77,7 +78,9 @@ const uploadSpeed = computed(() => bytesToSize(String(stat.value.uploadSpeed)))
   padding: 0;
   color: var(--speedometer-stopped);
   transform: rotate(-15deg);
-  transition: transform .35s cubic-bezier(0.2, 0, 0, 1), color .2s cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0, 0, 1),
+    color 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 .speedometer em {
   font-style: normal;
@@ -100,7 +103,9 @@ const uploadSpeed = computed(() => bytesToSize(String(stat.value.uploadSpeed)))
   text-align: center;
   vertical-align: top;
   color: var(--speedometer-primary);
-  transition: transform .35s cubic-bezier(0.2, 0, 0, 1), color .2s cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0, 0, 1),
+    color 0.2s cubic-bezier(0.2, 0, 0, 1);
   transform: rotate(0deg);
 }
 .mode em {
@@ -110,7 +115,7 @@ const uploadSpeed = computed(() => bytesToSize(String(stat.value.uploadSpeed)))
   margin-left: 4px;
   font-size: 16px;
   line-height: 15px;
-  transform: scale(.5);
+  transform: scale(0.5);
   vertical-align: top;
   color: var(--speedometer-primary);
 }
@@ -121,8 +126,9 @@ const uploadSpeed = computed(() => bytesToSize(String(stat.value.uploadSpeed)))
   text-overflow: ellipsis;
   opacity: 1;
   transform: translateX(0);
-  transition: opacity .3s cubic-bezier(0.2, 0, 0, 1),
-              transform .3s cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    opacity 0.3s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 .value.hidden {
   opacity: 0;
