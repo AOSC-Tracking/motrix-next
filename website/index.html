@@ -15,6 +15,36 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <!-- Critical: prevent Flash of Untranslated Content -->
+  <style>
+    body:not(.i18n-ready) {
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    body.i18n-ready {
+      visibility: visible;
+      animation: i18nReveal 250ms ease forwards;
+    }
+
+    @keyframes i18nReveal {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+  </style>
+  <noscript>
+    <style>
+      body {
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+    </style>
+  </noscript>
 </head>
 
 <body>
@@ -78,7 +108,7 @@
     </div>
   </nav>
 
-  <main style="opacity:0">
+  <main>
 
     <section id="hero">
       <div class="hero-watermark" aria-hidden="true">
@@ -468,7 +498,7 @@
 
   </main>
 
-  <footer id="footer" style="opacity:0">
+  <footer id="footer">
     <div class="footer-built">
       <span data-i18n="footer.built">Built with</span>
       <a href="https://tauri.app" target="_blank" rel="noopener" class="footer-tech-link"><img src="assets/tauri.svg"
@@ -558,11 +588,8 @@
       // Wait for i18n to be ready
       await initI18n();
 
-      // Reveal content after i18n is ready (prevent FOUC)
-      const mainEl = document.querySelector('main');
-      const footerEl = document.querySelector('footer');
-      if (mainEl) { mainEl.style.transition = 'opacity 200ms ease'; mainEl.style.opacity = '1'; }
-      if (footerEl) { footerEl.style.transition = 'opacity 200ms ease'; footerEl.style.opacity = '1'; }
+      // Reveal page — i18n is ready, all text is in the target locale
+      document.body.classList.add('i18n-ready');
 
       const os = detectOS();
       const detected = document.getElementById('dl-detected');
