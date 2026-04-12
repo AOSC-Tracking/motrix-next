@@ -251,7 +251,7 @@ export const DEFAULT_APP_CONFIG = {
   resumeAllWhenAppLaunched: false, // don't flood bandwidth on launch
 
   // ── Auto Update ───────────────────────────────────────────────
-  autoCheckUpdate: true, // qBT checks every launch; security best practice
+  autoCheckUpdate: false, // qBT checks every launch; security best practice
   autoCheckUpdateInterval: 24, // 24h (daily) is standard check frequency
   /** Linux-only: DMA-BUF GPU rendering ON by default for best performance.
    *  Crash sentinel in gpu_guard auto-reverts to software rendering on failure. */
