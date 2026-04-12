@@ -23,7 +23,7 @@ describe('buildBasicForm', () => {
 
   it('returns sensible defaults for empty config', () => {
     const form = buildBasicForm(emptyConfig)
-    expect(form.autoCheckUpdate).toBe(true)
+    expect(form.autoCheckUpdate).toBe(false)
     expect(form.autoCheckUpdateInterval).toBe(24)
     expect(form.updateChannel).toBe('stable')
     expect(form.locale).toBe('en-US')
