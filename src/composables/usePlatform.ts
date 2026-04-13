@@ -48,6 +48,10 @@ const ARCH_LABELS: Record<string, string> = {
   aarch64: 'ARM64',
   x86_64: 'x64',
   x86: 'x86',
+  loong64: 'LoongArch64',
+  mips64el: 'MIPS64EL',
+  ppc64: 'PPC64',
+  riscv64: 'RISC-V64',
 }
 
 /**
