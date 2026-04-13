@@ -117,11 +117,32 @@ describe('usePlatform', () => {
       expect(archLabel('x86_64')).toBe('x64')
     })
 
-    it('returns raw value for unknown architectures', async () => {
+    it('returns label for loong64', async () => {
       mockPlatform.mockReturnValue('linux')
       const mod = await import('../usePlatform')
       const { archLabel } = mod.usePlatform()
-      expect(archLabel('riscv64')).toBe('riscv64')
+      expect(archLabel('loong64')).toBe('LoongArch64')
+    })
+
+    it('returns label for mips64el', async () => {
+      mockPlatform.mockReturnValue('linux')
+      const mod = await import('../usePlatform')
+      const { archLabel } = mod.usePlatform()
+      expect(archLabel('mips64el')).toBe('MIPS64EL')
+    })
+
+    it('returns label for ppc64', async () => {
+      mockPlatform.mockReturnValue('linux')
+      const mod = await import('../usePlatform')
+      const { archLabel } = mod.usePlatform()
+      expect(archLabel('ppc64')).toBe('PPC64')
+    })
+
+    it('returns label for riscv64', async () => {
+      mockPlatform.mockReturnValue('linux')
+      const mod = await import('../usePlatform')
+      const { archLabel } = mod.usePlatform()
+      expect(archLabel('riscv64')).toBe('RISC-V64')
     })
   })
 
