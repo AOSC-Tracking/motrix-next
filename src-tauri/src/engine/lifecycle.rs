@@ -99,13 +99,10 @@ pub fn start_engine(app: &tauri::AppHandle, config: &serde_json::Value) -> Resul
         session_path.exists(),
     );
 
-    let sidecar = app
+    let (mut rx, child) = app
         .shell()
-        .sidecar("motrixnext-aria2c")
-        .map_err(|e| format!("Failed to create sidecar: {}", e))?
-        .args(&args);
-
-    let (mut rx, child) = sidecar
+        .command("aria2c")
+        .args(&args)
         .spawn()
         .map_err(|e| format!("Failed to spawn aria2c: {}", e))?;
 
@@ -310,13 +307,10 @@ pub fn restart_engine(app: &tauri::AppHandle, config: &serde_json::Value) -> Res
         session_path.exists(),
     );
 
-    let sidecar = app
+    let (mut rx, child) = app
         .shell()
-        .sidecar("motrixnext-aria2c")
-        .map_err(|e| format!("Failed to create sidecar: {}", e))?
-        .args(&args);
-
-    let (mut rx, child) = sidecar
+        .command("aria2c")
+        .args(&args)
         .spawn()
         .map_err(|e| format!("Failed to spawn aria2c: {}", e))?;
 
