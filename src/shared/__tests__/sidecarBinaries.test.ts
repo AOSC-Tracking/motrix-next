@@ -33,6 +33,10 @@ const EXPECTED_TARGETS = [
   // Linux
   'x86_64-unknown-linux-gnu',
   'aarch64-unknown-linux-gnu',
+  'loongarch64-unknown-linux-gnu',
+  'mips64el-unknown-linux-gnu',
+  'powerpc64le-unknown-linux-gnu',
+  'riscv64gc-unknown-linux-gnu',
 ] as const
 
 /** Minimum valid sidecar size in bytes (1 MB). Anything smaller is likely corrupt. */
@@ -128,6 +132,18 @@ describe('sidecar binaries', () => {
         } else if (target.includes('aarch64')) {
           // EM_AARCH64 = 183
           expect(machine).toBe(183)
+        } else if (target.includes('loongarch64')) {
+          // EM_LOONGARCH = 258
+          expect(machine).toBe(258)
+        } else if (target.includes('mips64el')) {
+          // EM_MIPS = 8 (MIPS64 little-endian)
+          expect(machine).toBe(8)
+        } else if (target.includes('powerpc64')) {
+          // EM_PPC64 = 21
+          expect(machine).toBe(21)
+        } else if (target.includes('riscv64')) {
+          // EM_RISCV = 243
+          expect(machine).toBe(243)
         }
       })
     }
