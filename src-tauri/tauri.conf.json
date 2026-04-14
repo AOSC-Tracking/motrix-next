@@ -35,9 +35,6 @@
     "publisher": "AnInsomniacy",
     "copyright": "Copyright © 2025 AnInsomniacy. All rights reserved.",
     "createUpdaterArtifacts": true,
-    "externalBin": [
-      "binaries/motrixnext-aria2c"
-    ],
     "resources": [
       "binaries/aria2.conf",
       "data/dbip-country-lite.mmdb"
