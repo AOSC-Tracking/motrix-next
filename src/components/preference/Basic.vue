@@ -43,20 +43,15 @@ import {
   NButton,
   NDivider,
   NInputGroup,
-  NText,
   NCollapseTransition,
   NDynamicTags,
   NTag,
   NSpace,
-  NRadioGroup,
-  NRadioButton,
   useDialog,
 } from 'naive-ui'
 import PreferenceActionBar from './PreferenceActionBar.vue'
 import MTooltip from '@/components/common/MTooltip.vue'
-import { FolderOpenOutline, CloudDownloadOutline } from '@vicons/ionicons5'
-import { NIcon } from 'naive-ui'
-import UpdateDialog from '@/components/preference/UpdateDialog.vue'
+import { FolderOpenOutline } from '@vicons/ionicons5'
 
 const { t, locale } = useI18n()
 const preferenceStore = usePreferenceStore()
@@ -81,16 +76,6 @@ async function copyVersionToClipboard(text: string, label: string) {
     /* Clipboard API may fail in some contexts — silently ignore. */
   }
 }
-const updateDialogRef = ref<InstanceType<typeof UpdateDialog> | null>(null)
-
-const checkIntervalOptions = [
-  { label: t('preferences.interval-daily'), value: 24 },
-  { label: t('preferences.interval-weekly'), value: 168 },
-  { label: t('preferences.interval-monthly'), value: 720 },
-  { label: t('preferences.interval-semi-annual'), value: 4320 },
-  { label: t('preferences.interval-yearly'), value: 8760 },
-]
-
 function buildForm() {
   return buildBasicForm(preferenceStore.config, defaultDownloadDir.value)
 }
@@ -598,10 +583,6 @@ function loadForm() {
   downloadUnit.value = dl.unit
 }
 
-function handleCheckUpdate() {
-  updateDialogRef.value?.open()
-}
-
 const { restartEngine } = useEngineRestart()
 
 function handleManualRestart() {
@@ -761,50 +742,6 @@ onMounted(async () => {
       >
         <NSelect v-model:value="form.locale" :options="localeOptions" style="width: 280px" />
       </NFormItem>
-
-      <NDivider title-placement="left">{{ t('preferences.auto-update') }}</NDivider>
-      <NFormItem :label="t('preferences.auto-check-update')">
-        <NSwitch v-model:value="form.autoCheckUpdate" />
-      </NFormItem>
-      <NCollapseTransition :show="form.autoCheckUpdate" class="collapse-indent">
-        <NFormItem :label="t('preferences.check-frequency')">
-          <NSelect v-model:value="form.autoCheckUpdateInterval" :options="checkIntervalOptions" style="width: 180px" />
-        </NFormItem>
-      </NCollapseTransition>
-      <NFormItem :label="t('preferences.update-channel')">
-        <NRadioGroup
-          v-model:value="form.updateChannel"
-          size="small"
-          @update:value="
-            async (v: string) => {
-              const ok = await preferenceStore.updateAndSave({ updateChannel: v as 'stable' | 'beta' })
-              if (ok) {
-                // Only sync updateChannel in the snapshot — preserve dirty state
-                // for other unsaved fields (download dir, speed limits, etc.).
-                patchSnapshot({ updateChannel: v } as Partial<typeof form.value>)
-              }
-            }
-          "
-        >
-          <NRadioButton value="stable">{{ t('preferences.update-channel-stable') }}</NRadioButton>
-          <NRadioButton value="beta">{{ t('preferences.update-channel-beta') }}</NRadioButton>
-        </NRadioGroup>
-      </NFormItem>
-      <NFormItem :label="t('preferences.last-check-update-time')">
-        <div style="display: flex; align-items: center; gap: 16px">
-          <NButton size="small" @click="handleCheckUpdate">
-            <template #icon>
-              <NIcon :size="14"><CloudDownloadOutline /></NIcon>
-            </template>
-            {{ t('app.check-updates-now') }}
-          </NButton>
-          <NText v-if="preferenceStore.config.lastCheckUpdateTime" depth="3" style="font-size: 13px">
-            {{ new Date(preferenceStore.config.lastCheckUpdateTime).toLocaleString() }}
-          </NText>
-          <NText v-else depth="3" style="font-size: 13px">—</NText>
-        </div>
-      </NFormItem>
-      <UpdateDialog ref="updateDialogRef" />
 
       <NDivider title-placement="left">{{ t('preferences.appearance-section') }}</NDivider>
       <NFormItem :label="t('preferences.appearance')">

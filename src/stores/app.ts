@@ -16,7 +16,7 @@ import { decodeThunderLink } from '@shared/utils'
 import { logger } from '@shared/logger'
 import { STAT_BASE_INTERVAL, STAT_PER_TASK_INTERVAL, STAT_MIN_INTERVAL, STAT_MAX_INTERVAL } from '@shared/timing'
 import { detectKind, createBatchItem } from '@shared/utils/batchHelpers'
-import type { Aria2RawGlobalStat, Aria2EngineOptions, TauriUpdate, AppConfig, BatchItem } from '@shared/types'
+import type { Aria2RawGlobalStat, Aria2EngineOptions, AppConfig, BatchItem } from '@shared/types'
 
 /** Payload shape emitted by Rust stat_service via `stat:update`. */
 interface StatPayload {
@@ -54,7 +54,6 @@ export const useAppStore = defineStore('app', () => {
   const pendingBatch = ref<BatchItem[]>([])
   const addTaskOptions = ref<Aria2EngineOptions>({})
   const progress = ref(0)
-  const pendingUpdate = ref<TauriUpdate | null>(null)
   const engineRestarting = ref(true)
   let engineRestartingSince = Date.now()
   const MIN_BANNER_MS = 1000
@@ -287,7 +286,6 @@ export const useAppStore = defineStore('app', () => {
     pendingBatch,
     addTaskOptions,
     progress,
-    pendingUpdate,
     engineRestarting,
     setEngineRestarting,
     engineReady,

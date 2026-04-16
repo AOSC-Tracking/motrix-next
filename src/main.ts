@@ -65,33 +65,6 @@ window.addEventListener('unhandledrejection', (e) => {
     }
   }
 
-  async function autoCheckForUpdate() {
-    const config = preferenceStore.config
-    if (config.autoCheckUpdate === false) return
-
-    const lastCheck = Number(config.lastCheckUpdateTime) || 0
-    const intervalMs = (Number(config.autoCheckUpdateInterval) || 24) * 3_600_000
-    if (Date.now() - lastCheck < intervalMs) return
-
-    try {
-      const { invoke } = await import('@tauri-apps/api/core')
-      const channel = config.updateChannel || 'stable'
-      const proxy = config.proxy
-      const proxyServer =
-        proxy?.enable && proxy.server && (proxy.scope || []).includes('update-app') ? proxy.server : null
-      const update = await invoke<{ version: string; body: string | null; date: string | null } | null>(
-        'check_for_update',
-        { channel, proxy: proxyServer },
-      )
-      if (update) {
-        appStore.pendingUpdate = { version: update.version, body: update.body, date: update.date }
-      }
-      preferenceStore.updateAndSave({ lastCheckUpdateTime: Date.now() })
-    } catch (e) {
-      logger.warn('Updater', 'auto check failed: ' + (e as Error).message)
-    }
-  }
-
   async function autoSyncTrackerOnStartup() {
     const config = preferenceStore.config
     if (!config.autoSyncTracker) return
@@ -130,7 +103,7 @@ window.addEventListener('unhandledrejection', (e) => {
   //  Phase 2 (engine, async)   – rpcSecret → save config → start engine
   //                              → on_engine_ready (Rust) → wait_for_engine
   //  Phase 3 (non-critical)    – deep-link, autostart (parallel)
-  //  Phase 4 (deferred)        – update check, tracker sync, FS warmup,
+  //  Phase 4 (deferred)        – tracker sync, FS warmup,
   //                              clipboard monitor
   // ---------------------------------------------------------------------------
 
@@ -400,7 +373,6 @@ window.addEventListener('unhandledrejection', (e) => {
     }
 
     // ── Phase 4: deferred non-critical tasks ───────────────────────────────
-    autoCheckForUpdate()
     autoSyncTrackerOnStartup()
 
     // Initialize download history database, then schedule stale record cleanup
