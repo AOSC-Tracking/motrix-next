@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @fileoverview Main application layout with sidebar, subnav, and IPC event handling. */
-import { computed, h, ref, nextTick, watch } from 'vue'
+import { computed, h, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -41,7 +41,6 @@ import WindowControls from '@/components/layout/WindowControls.vue'
 import EngineOverlay from '@/components/layout/EngineOverlay.vue'
 import AboutPanel from '@/components/about/AboutPanel.vue'
 import AddTask from '@/components/task/AddTask.vue'
-import UpdateDialog from '@/components/preference/UpdateDialog.vue'
 import MagnetFileSelect from '@/components/task/MagnetFileSelect.vue'
 import { useTaskStore } from '@/stores/task'
 import { usePreferenceStore } from '@/stores/preference'
@@ -77,8 +76,6 @@ const showShutdownCountdown = ref(false)
 const shutdownCountdown = ref(60)
 let shutdownTimer: ReturnType<typeof setInterval> | null = null
 let unlistenPowerCountdown: (() => void) | null = null
-
-const updateDialogRef = ref<InstanceType<typeof UpdateDialog> | null>(null)
 
 let unlistenDragDrop: (() => void) | null = null
 let unlistenMenuEvent: (() => void) | null = null
@@ -398,16 +395,6 @@ async function onMaximizeToggled() {
     isMaximized.value = await appWindow.isMaximized()
   }, 300)
 }
-
-watch(
-  () => appStore.pendingUpdate,
-  (update) => {
-    if (update) {
-      nextTick(() => updateDialogRef.value?.open())
-      appStore.pendingUpdate = null
-    }
-  },
-)
 
 async function handleExitConfirm() {
   // Checkbox means "always minimize to tray from now on" —
@@ -961,7 +948,6 @@ onUnmounted(() => {
     <Speedometer />
     <AboutPanel :show="showAbout" @close="showAbout = false" />
     <AddTask :show="appStore.addTaskVisible" @close="appStore.hideAddTaskDialog()" />
-    <UpdateDialog ref="updateDialogRef" />
     <EngineOverlay
       :show="showEngineOverlay"
       @recovered="showEngineOverlay = false"
