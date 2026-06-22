@@ -35,7 +35,6 @@
     "publisher": "AnInsomniacy",
     "copyright": "Copyright © 2025 AnInsomniacy. All rights reserved.",
     "createUpdaterArtifacts": true,
-    "externalBin": ["binaries/motrix-next-engine"],
     "resources": [
       "binaries/aria2.conf",
       "data/ed2k-bootstrap/server.met",

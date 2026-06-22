@@ -13,7 +13,7 @@ use tauri_plugin_store::StoreExt;
 static BT_PORT_RECOVERY_IN_FLIGHT: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);
 
-const ENGINE_SIDECAR_NAME: &str = "motrix-next-engine";
+const ENGINE_BINARY_NAME: &str = "aria2-next";
 const DEFAULT_RPC_PORT_STR: &str = "29100";
 const ENGINE_PORT_RELEASE_TIMEOUT_MS: u64 = 2600;
 const ENGINE_PORT_RELEASE_POLL_MS: u64 = 100;
@@ -238,8 +238,7 @@ pub fn start_engine(app: &tauri::AppHandle, config: &serde_json::Value) -> Resul
 
     let sidecar = app
         .shell()
-        .sidecar(ENGINE_SIDECAR_NAME)
-        .map_err(|e| format!("Failed to create sidecar: {}", e))?
+        .command(ENGINE_BINARY_NAME)
         .envs(sanitized_engine_proxy_env())
         .args(&args);
 
@@ -465,8 +464,7 @@ pub fn restart_engine(app: &tauri::AppHandle, _config: &serde_json::Value) -> Re
 
     let sidecar = app
         .shell()
-        .sidecar(ENGINE_SIDECAR_NAME)
-        .map_err(|e| format!("Failed to create sidecar: {}", e))?
+        .command(ENGINE_BINARY_NAME)
         .envs(sanitized_engine_proxy_env())
         .args(&args);
 

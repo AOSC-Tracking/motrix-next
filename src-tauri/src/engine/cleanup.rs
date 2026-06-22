@@ -4,10 +4,10 @@
 /// killed when reclaiming the RPC port — never arbitrary processes that
 /// happen to occupy the same port.
 ///
-/// Matches only the current `motrix-next-engine` sidecar process.
+/// Matches only the system `aria2-next` process.
 ///
 fn is_supported_engine_process(comm: &str) -> bool {
-    comm.contains("motrix-next-engine")
+    comm.contains("aria2-next")
 }
 
 #[cfg(unix)]
@@ -163,19 +163,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn is_supported_engine_process_matches_motrix_next_engine() {
-        assert!(is_supported_engine_process("motrix-next-engine"));
+    fn is_supported_engine_process_matches_aria2_next() {
+        assert!(is_supported_engine_process("aria2-next"));
         assert!(is_supported_engine_process(
-            "/Applications/MotrixNext.app/Contents/Resources/motrix-next-engine"
-        ));
-        assert!(is_supported_engine_process(
-            "/usr/bin/motrix-next-engine --conf-path=/usr/lib/MotrixNext/binaries/aria2.conf"
+            "/usr/bin/aria2-next --conf-path=/usr/lib/MotrixNext/binaries/aria2.conf"
         ));
     }
 
     #[test]
     fn is_supported_engine_process_does_not_trust_truncated_comm_names() {
-        assert!(!is_supported_engine_process("motrix-next-eng"));
+        assert!(!is_supported_engine_process("aria2-nex"));
     }
 
     #[test]
