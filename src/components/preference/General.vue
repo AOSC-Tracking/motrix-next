@@ -23,27 +23,9 @@ import {
 } from '@/composables/useGeneralPreference'
 import { COLOR_SCHEMES, ENGINE_RPC_PORT } from '@shared/constants'
 import { useAppMessage } from '@/composables/useAppMessage'
-import {
-  NForm,
-  NFormItem,
-  NSelect,
-  NSwitch,
-  NButton,
-  NDivider,
-  NText,
-  NCollapseTransition,
-  NSpace,
-  NTag,
-  NRadioGroup,
-  NRadioButton,
-  NIcon,
-  useDialog,
-} from 'naive-ui'
+import { NForm, NFormItem, NSelect, NSwitch, NDivider, NCollapseTransition, NSpace, NTag, useDialog } from 'naive-ui'
 import PreferenceActionBar from './PreferenceActionBar.vue'
 import MTooltip from '@/components/common/MTooltip.vue'
-import { CloudDownloadOutline } from '@vicons/ionicons5'
-import UpdateDialog from '@/components/preference/UpdateDialog.vue'
-import type { UpdateChannel } from '@shared/types'
 import PreferenceHintLabel from './PreferenceHintLabel.vue'
 
 const { t, locale } = useI18n()
@@ -68,16 +50,6 @@ async function copyVersionToClipboard(text: string, label: string) {
     logger.debug('General.clipboard', `writeText failed: ${e}`)
   }
 }
-const updateDialogRef = ref<InstanceType<typeof UpdateDialog> | null>(null)
-
-const checkIntervalOptions = [
-  { label: t('preferences.interval-every-startup'), value: 0 },
-  { label: t('preferences.interval-daily'), value: 24 },
-  { label: t('preferences.interval-weekly'), value: 168 },
-  { label: t('preferences.interval-monthly'), value: 720 },
-  { label: t('preferences.interval-semi-annual'), value: 4320 },
-  { label: t('preferences.interval-yearly'), value: 8760 },
-]
 
 function buildForm() {
   return buildGeneralForm(preferenceStore.config)
@@ -234,10 +206,6 @@ const taskCardModeOptions = computed(() => [
   { label: t('preferences.task-card-mode-compact'), value: 'compact' },
 ])
 
-function handleCheckUpdate() {
-  updateDialogRef.value?.open()
-}
-
 const { restartEngine } = useEngineRestart()
 
 function handleManualRestart() {
@@ -359,55 +327,7 @@ onMounted(async () => {
         />
       </NFormItem>
 
-      <!-- ③ Auto Update -->
-      <NDivider title-placement="left">{{ t('preferences.auto-update') }}</NDivider>
-      <NFormItem :label="t('preferences.auto-check-update')">
-        <NSwitch v-model:value="form.autoCheckUpdate" />
-      </NFormItem>
-      <NCollapseTransition :show="form.autoCheckUpdate" class="collapse-indent">
-        <NFormItem :label="t('preferences.check-frequency')">
-          <NSelect
-            v-model:value="form.autoCheckUpdateInterval"
-            :options="checkIntervalOptions"
-            class="pref-control-auto"
-          />
-        </NFormItem>
-      </NCollapseTransition>
-      <NFormItem :label="t('preferences.update-channel')">
-        <NRadioGroup
-          v-model:value="form.updateChannel"
-          size="small"
-          @update:value="
-            async (v: string) => {
-              const ok = await preferenceStore.updateAndSave({ updateChannel: v as UpdateChannel })
-              if (ok) {
-                patchSnapshot({ updateChannel: v } as Partial<typeof form.value>)
-              }
-            }
-          "
-        >
-          <NRadioButton value="stable">{{ t('preferences.update-channel-stable') }}</NRadioButton>
-          <NRadioButton value="beta">{{ t('preferences.update-channel-beta') }}</NRadioButton>
-          <NRadioButton value="latest">{{ t('preferences.update-channel-latest') }}</NRadioButton>
-        </NRadioGroup>
-      </NFormItem>
-      <NFormItem :label="t('preferences.last-check-update-time')">
-        <div class="pref-inline-row">
-          <NButton size="small" @click="handleCheckUpdate">
-            <template #icon>
-              <NIcon :size="14"><CloudDownloadOutline /></NIcon>
-            </template>
-            {{ t('app.check-updates-now') }}
-          </NButton>
-          <NText v-if="preferenceStore.config.lastCheckUpdateTime" depth="3" class="pref-inline-row__meta">
-            {{ new Date(preferenceStore.config.lastCheckUpdateTime).toLocaleString() }}
-          </NText>
-          <NText v-else depth="3" class="pref-inline-row__meta">—</NText>
-        </div>
-      </NFormItem>
-      <UpdateDialog ref="updateDialogRef" />
-
-      <!-- ④ Appearance -->
+      <!-- ③ Appearance -->
       <NDivider title-placement="left">{{ t('preferences.appearance-section') }}</NDivider>
       <NFormItem :label="t('preferences.appearance')">
         <NSelect v-model:value="form.theme" :options="themeOptions" class="pref-control-auto" />
