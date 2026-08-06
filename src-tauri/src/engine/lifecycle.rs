@@ -10,7 +10,7 @@ use super::{valid_aria2_log_level, DEFAULT_ARIA2_LOG_LEVEL};
 use crate::services::port_guard;
 use tauri_plugin_store::StoreExt;
 
-const ENGINE_SIDECAR_NAME: &str = "motrix-next-engine";
+const ENGINE_BINARY_NAME: &str = "aria2-next";
 const DEFAULT_RPC_PORT_STR: &str = "29100";
 const ENGINE_PORT_RELEASE_TIMEOUT_MS: u64 = 2600;
 const ENGINE_PORT_RELEASE_POLL_MS: u64 = 100;
@@ -19,10 +19,12 @@ const WINDOWS_STATUS_DLL_INIT_FAILED_LOGOFF: u32 = 0xC000_026B;
 const PROXY_ENV_VARS: &[&str] = &[
     "http_proxy",
     "https_proxy",
+    "ftp_proxy",
     "all_proxy",
     "no_proxy",
     "HTTP_PROXY",
     "HTTPS_PROXY",
+    "FTP_PROXY",
     "ALL_PROXY",
     "NO_PROXY",
 ];
@@ -172,8 +174,7 @@ fn spawn_engine(
 ) -> Result<(Receiver<CommandEvent>, CommandChild), String> {
     log::info!(target: "engine", event = "engine_spawn_started", argument_count = args.len(); "engine_spawn_started");
     app.shell()
-        .sidecar(ENGINE_SIDECAR_NAME)
-        .map_err(|error| format!("Failed to create sidecar: {error}"))?
+        .command(ENGINE_BINARY_NAME)
         .envs(sanitized_engine_proxy_env())
         .args(args)
         .spawn()
