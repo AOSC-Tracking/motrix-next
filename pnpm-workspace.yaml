@@ -1,6 +1,9 @@
 allowBuilds:
   esbuild: true
 
+overrides:
+  oxc-parser: npm:@loongdotjs/oxc-parser@0.142.1
+
 minimumReleaseAgeExclude:
   - '@typescript-eslint/eslint-plugin@8.61.0'
   - '@typescript-eslint/parser@8.61.0'
