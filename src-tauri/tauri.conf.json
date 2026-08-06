@@ -38,7 +38,7 @@
     "publisher": "AnInsomniacy",
     "copyright": "Copyright (c) 2025-present AnInsomniacy",
     "createUpdaterArtifacts": false,
-    "externalBin": ["binaries/aria2-next", "generated-binaries/rayburst-browser-launcher"],
+    "externalBin": ["generated-binaries/rayburst-browser-launcher"],
     "resources": [
       "data/ed2k-bootstrap/server.met",
       "data/ed2k-bootstrap/nodes.dat",
