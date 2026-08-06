@@ -32,7 +32,6 @@ import type {
   BrowserRequestHeader,
   ExternalDownloadContext,
   ExternalDownloadInput,
-  TauriUpdate,
   AppConfig,
   BatchItem,
 } from '@shared/types'
@@ -93,7 +92,6 @@ export const useAppStore = defineStore('app', () => {
   /** Browser request headers captured by the extension for the most recent external input. */
   const pendingRequestHeaders = ref<BrowserRequestHeader[]>([])
   const progress = ref(0)
-  const pendingUpdate = ref<TauriUpdate | null>(null)
   const engineRestarting = ref(true)
   let engineRestartingSince = Date.now()
   const MIN_BANNER_MS = 1000
@@ -559,7 +557,6 @@ export const useAppStore = defineStore('app', () => {
     pendingUserAgent,
     pendingRequestHeaders,
     progress,
-    pendingUpdate,
     engineRestarting,
     setEngineRestarting,
     engineReady,
