@@ -27,4 +27,15 @@ describe('Platform labels', () => {
     expect(usePlatform().platform).toBe(state.platform)
     expect(mockPlatform).toHaveBeenCalledOnce()
   })
+
+  it.each([
+    ['loongarch64', 'LoongArch64'],
+    ['mips64', 'MIPS64el'],
+    ['powerpc64', 'PowerPC64el'],
+    ['riscv64', 'RISC-V64'],
+  ])('labels %s on Linux', async (arch, label) => {
+    mockPlatform.mockReturnValue('linux')
+    const { usePlatform } = await import('../usePlatform')
+    expect(usePlatform().archLabel(arch)).toBe(label)
+  })
 })
