@@ -8,7 +8,7 @@ import DOMPurify from 'dompurify'
 marked.use(markedAlert())
 import { ref, computed, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { NModal, NButton, NProgress, NIcon, NText, NSpin, NTag } from 'naive-ui'
+import { NModal, NButton, NProgress, NIcon, NText, NSpin, NTag, useDialog } from 'naive-ui'
 import { invoke } from '@tauri-apps/api/core'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import { relaunch } from '@tauri-apps/plugin-process'
@@ -22,6 +22,7 @@ import {
 } from '@vicons/ionicons5'
 import { usePreferenceStore } from '@/stores/preference'
 import { logger } from '@shared/logger'
+import { UPDATES_MANAGED_BY_OS, UPDATES_MANAGED_BY_OS_MESSAGE } from '@shared/constants'
 import type { ResolvedUpdateChannel, TauriUpdate, UpdateChannel } from '@shared/types'
 import {
   isActionDisabled,
@@ -52,6 +53,7 @@ type UpdateProgressEvent = UpdateProgressStarted | UpdateProgressChunk | UpdateP
 
 const { t } = useI18n()
 const preferenceStore = usePreferenceStore()
+const dialog = useDialog()
 
 const show = ref(false)
 const phase = ref<'checking' | 'up-to-date' | 'available' | 'downloading' | 'ready' | 'installing' | 'error'>(
@@ -110,7 +112,20 @@ function getUpdateProxy(): string | null {
 const downloadedMB = computed(() => bytesToMB(downloadReceived.value))
 const totalMB = computed(() => bytesToMB(downloadTotal.value))
 
+function showUpdatesManagedDialog(): void {
+  dialog.info({
+    title: t('app.check-updates-now'),
+    content: UPDATES_MANAGED_BY_OS_MESSAGE,
+    positiveText: t('app.confirm'),
+  })
+}
+
 async function open(channel?: string) {
+  if (UPDATES_MANAGED_BY_OS) {
+    showUpdatesManagedDialog()
+    return
+  }
+
   const currentOperationId = ++operationId
   const ch = (channel || preferenceStore.config.updateChannel || 'stable') as UpdateChannel
   requestedChannel.value = ch
@@ -159,6 +174,11 @@ async function open(channel?: string) {
 }
 
 async function present(update: TauriUpdate) {
+  if (UPDATES_MANAGED_BY_OS) {
+    showUpdatesManagedDialog()
+    return
+  }
+
   const currentOperationId = ++operationId
   requestedChannel.value = update.requestedChannel
   activeChannel.value = update.channel

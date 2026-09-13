@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @fileoverview Main application layout with sidebar, subnav, and IPC event handling. */
-import { computed, ref, nextTick, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -43,6 +43,7 @@ import MagnetFileSelect from '@/components/task/MagnetFileSelect.vue'
 import { useTaskStore } from '@/stores/task'
 import { usePreferenceStore } from '@/stores/preference'
 import { useAppMessage } from '@/composables/useAppMessage'
+import { UPDATES_MANAGED_BY_OS_MESSAGE } from '@shared/constants'
 import { NModal, NButton, NCheckbox, NProgress, NPagination, useDialog } from 'naive-ui'
 
 import { useAppEvents } from '@/composables/useAppEvents'
@@ -64,6 +65,14 @@ const navDialog = useDialog()
 const message = useAppMessage()
 const database = useDatabaseStore()
 const { showDatabaseReset } = useDatabaseReset()
+
+function showUpdatesManagedDialog(): void {
+  navDialog.info({
+    title: t('app.check-updates-now'),
+    content: UPDATES_MANAGED_BY_OS_MESSAGE,
+    positiveText: t('app.confirm'),
+  })
+}
 watch(
   () => database.phase,
   (phase) => {
@@ -505,7 +514,7 @@ watch(
   () => appStore.pendingUpdate,
   (update) => {
     if (update) {
-      nextTick(() => updateDialogRef.value?.present(update))
+      showUpdatesManagedDialog()
       appStore.pendingUpdate = null
     }
   },
@@ -515,7 +524,7 @@ watch(
   () => appStore.updateCheckRequestId,
   (requestId) => {
     if (requestId > 0) {
-      nextTick(() => updateDialogRef.value?.open())
+      showUpdatesManagedDialog()
     }
   },
 )

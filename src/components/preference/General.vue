@@ -67,15 +67,6 @@ async function copyVersionToClipboard(text: string, label: string) {
     logger.debug('General.clipboard', `writeText failed: ${e}`)
   }
 }
-const checkIntervalOptions = [
-  { label: t('preferences.interval-every-startup'), value: 0 },
-  { label: t('preferences.interval-daily'), value: 24 },
-  { label: t('preferences.interval-weekly'), value: 168 },
-  { label: t('preferences.interval-monthly'), value: 720 },
-  { label: t('preferences.interval-semi-annual'), value: 4320 },
-  { label: t('preferences.interval-yearly'), value: 8760 },
-]
-
 const CUSTOM_COLOR_SWATCHES = ['#F59E0B', '#2563EB', '#14B8A6', '#DC2626', '#9333EA', '#4B5563']
 
 function buildForm() {
@@ -326,18 +317,6 @@ onMounted(async () => {
 
         <!-- ③ Auto Update -->
         <NDivider title-placement="left">{{ t('preferences.auto-update') }}</NDivider>
-        <NFormItem :label="t('preferences.auto-check-update')">
-          <NSwitch v-model:value="form.autoCheckUpdate" />
-        </NFormItem>
-        <NCollapseTransition :show="form.autoCheckUpdate" class="collapse-indent">
-          <NFormItem :label="t('preferences.check-frequency')">
-            <NSelect
-              v-model:value="form.autoCheckUpdateInterval"
-              :options="checkIntervalOptions"
-              class="pref-control-auto"
-            />
-          </NFormItem>
-        </NCollapseTransition>
         <NFormItem :label="t('preferences.update-channel')">
           <NRadioGroup
             v-model:value="form.updateChannel"
