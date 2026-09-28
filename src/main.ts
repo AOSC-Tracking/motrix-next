@@ -12,7 +12,7 @@ import { useHistoryStore } from './stores/history'
 import { useDatabaseStore } from './stores/database'
 import { useEngineStore } from './stores/engine'
 import aria2Api from './api/aria2'
-import { DEFAULT_TRACKER_SOURCE, ENGINE_RPC_PORT, PROXY_SCOPES } from '@shared/constants'
+import { DEFAULT_TRACKER_SOURCE, ENGINE_RPC_PORT, PROXY_SCOPES, UPDATES_MANAGED_BY_OS } from '@shared/constants'
 import { convertTrackerDataToLine, convertTrackerDataToComma } from '@shared/utils/tracker'
 import { logger } from '@shared/logger'
 import { getErrorMessage } from '@shared/utils/errorMessage'
@@ -69,6 +69,8 @@ if (import.meta.env.PROD) {
   const historyStore = useHistoryStore()
 
   async function autoCheckForUpdate() {
+    if (UPDATES_MANAGED_BY_OS) return
+
     const config = preferenceStore.config
     if (config.autoCheckUpdate === false) return
 

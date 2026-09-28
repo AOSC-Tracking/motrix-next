@@ -5,6 +5,8 @@ import type { AppLogLevel, Aria2LogLevel } from '@shared/types'
 import type { I18nKey } from '@shared/i18nTypes'
 export const EMPTY_STRING = ''
 
+export const UPDATES_MANAGED_BY_OS = true
+
 export const APP_THEME = {
   AUTO: 'auto',
   LIGHT: 'light',
@@ -278,7 +280,7 @@ export const DEFAULT_APP_CONFIG = {
   resumeAllWhenAppLaunched: false, // don't flood bandwidth on launch
 
   // ── Auto Update ───────────────────────────────────────────────
-  autoCheckUpdate: true, // qBT checks every launch; security best practice
+  autoCheckUpdate: false, // Updates are managed by the operating system
   autoCheckUpdateInterval: 0, // 0 means every frontend startup, including lightweight restores
   /** Linux-only: keep WebKitGTK defaults; software fallback is explicitly opt-in. */
   softwareRendering: false,
