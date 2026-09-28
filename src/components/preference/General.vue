@@ -6,7 +6,6 @@
 import { ref, computed, watch, onMounted, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePreferenceStore } from '@/stores/preference'
-import { useAppStore } from '@/stores/app'
 import { usePreferenceForm } from '@/composables/usePreferenceForm'
 import { useEngineStore } from '@/stores/engine'
 import { useFloatWindowRelaunch } from '@/composables/useFloatWindowRelaunch'
@@ -31,22 +30,17 @@ import {
   NFormItem,
   NSelect,
   NSwitch,
-  NButton,
   NDivider,
-  NText,
   NCollapseTransition,
   NSpace,
   NTag,
   NRadioGroup,
   NRadioButton,
   NColorPicker,
-  NIcon,
   useDialog,
 } from 'naive-ui'
 import PreferenceActionRegistration from './PreferenceActionRegistration.vue'
 import MTooltip from '@/components/common/MTooltip.vue'
-import { CloudDownloadOutline } from '@vicons/ionicons5'
-import type { UpdateChannel } from '@shared/types'
 import PreferenceHintLabel from './PreferenceHintLabel.vue'
 import PreferenceCheckboxGrid from './PreferenceCheckboxGrid.vue'
 import PreferenceAssociations from './PreferenceAssociations.vue'
@@ -55,7 +49,6 @@ import { UI_SCALE_STEPS } from '@/composables/useInterfaceScale'
 
 const { t, locale } = useI18n()
 const preferenceStore = usePreferenceStore()
-const appStore = useAppStore()
 const dialog = useDialog()
 const message = useAppMessage()
 const { isMac, isLinux, isWindows, platformLabel, archLabel: getArchLabel } = usePlatform()
@@ -76,15 +69,6 @@ async function copyVersionToClipboard(text: string, label: string) {
     logger.debug('General.clipboard', `writeText failed: ${e}`)
   }
 }
-const checkIntervalOptions = [
-  { label: t('preferences.interval-every-startup'), value: 0 },
-  { label: t('preferences.interval-daily'), value: 24 },
-  { label: t('preferences.interval-weekly'), value: 168 },
-  { label: t('preferences.interval-monthly'), value: 720 },
-  { label: t('preferences.interval-semi-annual'), value: 4320 },
-  { label: t('preferences.interval-yearly'), value: 8760 },
-]
-
 const CUSTOM_COLOR_SWATCHES = ['#F59E0B', '#2563EB', '#14B8A6', '#DC2626', '#9333EA', '#4B5563']
 
 function buildForm() {
@@ -93,7 +77,7 @@ function buildForm() {
 
 const offerFloatWindowRelaunch = useFloatWindowRelaunch()
 
-const { form, isDirty, handleSave, handleReset, patchSnapshot, resetSnapshot, commitInstant } = usePreferenceForm({
+const { form, isDirty, handleSave, handleReset, patchSnapshot, resetSnapshot } = usePreferenceForm({
   buildForm,
   transformForStore: transformGeneralForStore,
   afterSave: async (f, prevConfig) => {
@@ -287,9 +271,6 @@ const taskCardModeOptions = computed(() => [
   { label: t('preferences.task-card-mode-compact'), value: 'compact' },
 ])
 
-function handleCheckUpdate() {
-  appStore.requestUpdateCheck()
-}
 
 const engineStore = useEngineStore()
 
@@ -432,47 +413,6 @@ onMounted(async () => {
           <NotificationAccess />
         </NCollapseTransition>
 
-        <!-- ③ Auto Update -->
-        <NDivider title-placement="left">{{ t('preferences.auto-update') }}</NDivider>
-        <NFormItem :label="t('preferences.auto-check-update')">
-          <NSwitch v-model:value="form.autoCheckUpdate" />
-        </NFormItem>
-        <NCollapseTransition :show="form.autoCheckUpdate" class="collapse-indent">
-          <NFormItem :label="t('preferences.check-frequency')">
-            <NSelect
-              v-model:value="form.autoCheckUpdateInterval"
-              :options="checkIntervalOptions"
-              class="pref-control-auto"
-            />
-          </NFormItem>
-        </NCollapseTransition>
-        <NFormItem :label="t('preferences.update-channel')">
-          <NRadioGroup
-            v-model:value="form.updateChannel"
-            size="small"
-            @update:value="
-              (v: UpdateChannel) =>
-                commitInstant({ updateChannel: v }, () => preferenceStore.updateAndSave({ updateChannel: v }))
-            "
-          >
-            <NRadioButton value="stable">{{ t('preferences.update-channel-stable') }}</NRadioButton>
-            <NRadioButton value="beta">{{ t('preferences.update-channel-beta') }}</NRadioButton>
-          </NRadioGroup>
-        </NFormItem>
-        <NFormItem :label="t('preferences.last-check-update-time')">
-          <div class="pref-inline-row">
-            <NButton size="small" @click="handleCheckUpdate">
-              <template #icon>
-                <NIcon :size="14"><CloudDownloadOutline /></NIcon>
-              </template>
-              {{ t('app.check-updates-now') }}
-            </NButton>
-            <NText v-if="preferenceStore.config.lastCheckUpdateTime" depth="3" class="pref-inline-row__meta">
-              {{ new Date(preferenceStore.config.lastCheckUpdateTime).toLocaleString() }}
-            </NText>
-            <NText v-else depth="3" class="pref-inline-row__meta">—</NText>
-          </div>
-        </NFormItem>
         <!-- ④ Appearance -->
         <NDivider title-placement="left">{{ t('preferences.appearance-section') }}</NDivider>
         <NFormItem :label="t('preferences.appearance')">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @fileoverview Main application layout with application shell and IPC event handling. */
-import { computed, ref, nextTick, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { onMounted, onUnmounted } from 'vue'
@@ -38,7 +38,6 @@ import EngineRecoveryDialog from '@/components/layout/EngineRecoveryDialog.vue'
 import AboutPanel from '@/components/about/AboutPanel.vue'
 import ExtensionPanel from '@/components/extension/ExtensionPanel.vue'
 import TorrentDropOverlay from '@/components/task/TorrentDropOverlay.vue'
-import UpdateDialog from '@/components/preference/UpdateDialog.vue'
 import TaskSelectionHost from '@/components/task/TaskSelectionHost.vue'
 import { useTaskStore } from '@/stores/task'
 import { usePreferenceStore } from '@/stores/preference'
@@ -64,6 +63,14 @@ const navDialog = useDialog()
 const message = useAppMessage()
 const database = useDatabaseStore()
 const { showDatabaseReset } = useDatabaseReset()
+
+function showUpdatesManagedDialog(): void {
+  navDialog.info({
+    title: t('app.check-updates-now'),
+    content: '更新由您的操作系统管理',
+    positiveText: t('app.confirm'),
+  })
+}
 watch(
   () => database.phase,
   (phase) => {
@@ -134,7 +141,6 @@ const shutdownCountdown = ref(60)
 let shutdownTimer: ReturnType<typeof setInterval> | null = null
 let unlistenPowerCountdown: (() => void) | null = null
 
-const updateDialogRef = ref<InstanceType<typeof UpdateDialog> | null>(null)
 
 let unlistenDragDrop: (() => void) | null = null
 let unlistenMenuEvent: (() => void) | null = null
@@ -277,7 +283,7 @@ watch(
   () => appStore.pendingUpdate,
   (update) => {
     if (update) {
-      nextTick(() => updateDialogRef.value?.present(update))
+      showUpdatesManagedDialog()
       appStore.pendingUpdate = null
     }
   },
@@ -287,7 +293,7 @@ watch(
   () => appStore.updateCheckRequestId,
   (requestId) => {
     if (requestId > 0) {
-      nextTick(() => updateDialogRef.value?.open())
+      showUpdatesManagedDialog()
     }
   },
 )
@@ -822,7 +828,6 @@ onUnmounted(() => {
     </footer>
     <AboutPanel :show="showAbout" @close="showAbout = false" />
     <ExtensionPanel :show="showExtensions" @close="showExtensions = false" />
-    <UpdateDialog ref="updateDialogRef" />
     <EngineRecoveryDialog />
     <TaskSelectionHost
       :blocked="
