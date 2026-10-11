@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  oxc-parser: npm:@loongdotjs/oxc-parser@0.142.1
+
 importers:
 
   .:
